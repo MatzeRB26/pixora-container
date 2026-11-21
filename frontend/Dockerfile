@@ -1,20 +1,20 @@
-# ---------- Build-Stage: Angular bauen ----------
+# ---------- Build stage: build Angular app ----------
 FROM node:22-alpine AS build
 
 RUN npm install -g pnpm@10
 
 WORKDIR /app
 
-# Erst nur die Abhängigkeits-Dateien (besserer Layer-Cache)
+# Copy dependency files first (better layer caching)
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
-# Dann den restlichen Code und Production-Build
+# Copy the source code and create the production build
 COPY . .
 RUN pnpm run build
 
 
-# ---------- Runtime-Stage: nur nginx mit den fertigen Dateien ----------
+# ---------- Runtime stage: nginx serving the built files ----------
 FROM nginxinc/nginx-unprivileged:1.27-alpine AS runtime
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf

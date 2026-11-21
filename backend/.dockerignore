@@ -1,25 +1,25 @@
-# Secrets / Umgebungsdateien
+# Secrets / environment files
 .env
 *.env
 
-# Virtuelle Umgebungen & Caches
+# Virtual environments & caches
 .venv/
 venv/
 __pycache__/
 *.py[cod]
 
-# Lokale Datenbank & generierte Dateien
+# Local database & generated files
 db.sqlite3
 staticfiles/
 *.log
 
-# Hochgeladene Medien – nur Seed-Bilder ins Image
+# Uploaded media – only seed images go into the image
 media/*
 !media/posts/
 media/posts/*
 !media/posts/seed/
 
-# Git & Docker-Dateien
+# Git & Docker files
 .git
 .gitignore
 Dockerfile

@@ -1,4 +1,4 @@
-# Abhängigkeiten & Build-Artefakte
+# Dependencies & build artifacts
 node_modules/
 dist/
 .angular/
@@ -9,7 +9,7 @@ coverage/
 .env
 *.env
 
-# Git & Docker-Dateien
+# Git & Docker files
 .git
 .gitignore
 Dockerfile

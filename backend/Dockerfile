@@ -1,4 +1,4 @@
-# ---------- Build-Stage: Abhängigkeiten installieren ----------
+# ---------- Build stage: install dependencies ----------
 FROM python:3.12-slim-bookworm AS build
 
 ENV PIP_NO_CACHE_DIR=1 \
@@ -12,19 +12,19 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 
-# ---------- Runtime-Stage: nur was zum Ausführen nötig ist ----------
+# ---------- Runtime stage: only what is needed to run ----------
 FROM python:3.12-slim-bookworm AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:$PATH"
 
-# Benutzer ohne Root-Rechte
+# Non-root user
 RUN groupadd --system pixora && useradd --system --gid pixora --no-create-home pixora
 
 WORKDIR /app
 
-# Fertige venv aus der Build-Stage übernehmen
+# Copy the prepared venv from the build stage
 COPY --from=build /opt/venv /opt/venv
 COPY --chown=pixora:pixora . .
 
@@ -35,5 +35,5 @@ USER pixora
 
 EXPOSE 8000
 
-# Beim Start: Migrationen, Static Files sammeln, dann gunicorn
+# On start: run migrations, collect static files, then start gunicorn
 CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && exec gunicorn pixora.wsgi:application --bind 0.0.0.0:8000 --workers 3"]
