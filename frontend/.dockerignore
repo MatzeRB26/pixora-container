@@ -1,0 +1,16 @@
+# Abhängigkeiten & Build-Artefakte
+node_modules/
+dist/
+.angular/
+coverage/
+*.log
+
+# Secrets
+.env
+*.env
+
+# Git & Docker-Dateien
+.git
+.gitignore
+Dockerfile
+.dockerignore
