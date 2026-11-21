@@ -55,3 +55,6 @@ coverage/
 
 # Logs
 *.log
+
+# Example environment file belongs in the repo
+!example.env
