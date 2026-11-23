@@ -42,7 +42,7 @@ Load sample data (optional):
 docker compose exec backend python manage.py seed_db
 ```
 
-Open **http://localhost:4200** and log in with `armin_admin` / `password123` (seed user, local only).
+Open **http://localhost:4200** and log in with `armin_admin` / `password123` (seed superuser with a publicly known password – local testing only, never run `seed_db` on a server).
 
 ## Services
 
