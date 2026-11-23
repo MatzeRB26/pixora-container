@@ -20,7 +20,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PATH="/opt/venv/bin:$PATH"
 
 # Non-root user
-RUN groupadd --system pixora && useradd --system --gid pixora --no-create-home pixora
+RUN groupadd --system pixora && useradd --system --gid pixora --create-home pixora
 
 WORKDIR /app
 
@@ -35,5 +35,5 @@ USER pixora
 
 EXPOSE 8000
 
-# On start: run migrations, collect static files, then start gunicorn
-CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && exec gunicorn pixora.wsgi:application --bind 0.0.0.0:8000 --workers 3"]
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["gunicorn", "pixora.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
