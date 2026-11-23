@@ -20,4 +20,7 @@ FROM nginxinc/nginx-unprivileged:1.27-alpine AS runtime
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist/pixora-frontend/browser /usr/share/nginx/html
 
+# nginx-unprivileged already runs as non-root; make it explicit
+USER nginx
+
 EXPOSE 8080
