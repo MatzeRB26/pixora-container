@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: ${DB_NAME:-pixora}
       POSTGRES_USER: ${DB_USER:-pixora}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-insecure-db-password}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -26,12 +26,12 @@ services:
       db:
         condition: service_healthy
     environment:
-      SECRET_KEY: ${SECRET_KEY:-insecure-dev-secret-key}
+      SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY in .env}
       DEBUG: ${DEBUG:-False}
       USE_SQLITE: "False"
       DB_NAME: ${DB_NAME:-pixora}
       DB_USER: ${DB_USER:-pixora}
-      DB_PASSWORD: ${DB_PASSWORD:-insecure-db-password}
+      DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
       DB_HOST: db
       DB_PORT: "5432"
       ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1}
