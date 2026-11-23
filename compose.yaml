@@ -20,7 +20,7 @@ services:
 
   backend:
     build: ./backend
-    image: pixora-backend
+    image: pixora-backend:1.0.0
     restart: unless-stopped
     depends_on:
       db:
@@ -54,7 +54,7 @@ services:
 
   frontend:
     build: ./frontend
-    image: pixora-frontend
+    image: pixora-frontend:1.0.0
     restart: unless-stopped
     depends_on:
       backend:
