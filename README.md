@@ -2,6 +2,16 @@
 
 A full-stack Instagram-like app (Angular 21 + Django 6 + PostgreSQL), fully containerized with Docker Compose.
 
+## Table of Contents
+
+- [Quickstart](#quickstart)
+- [Services](#services)
+- [Environment variables](#environment-variables)
+- [Usage](#usage)
+- [Verify](#verify)
+- [Troubleshooting](#troubleshooting)
+- [API Overview](#api-overview)
+
 ## Quickstart
 
 Clone the repository:
@@ -39,7 +49,7 @@ Open **http://localhost:4200** and log in with `armin_admin` / `password123` (se
 | Service    | Image                                  | Host port | Container port | Purpose                                        |
 |------------|----------------------------------------|-----------|----------------|------------------------------------------------|
 | `frontend` | built from `frontend/Dockerfile`       | 4200      | 8080           | nginx serves Angular, proxies `/api` and `/admin` |
-| `backend`  | built from `backend/Dockerfile`        | 8000      | 8000           | Django REST API with gunicorn                  |
+| `backend`  | built from `backend/Dockerfile`        | 8000 (localhost only)      | 8000 | Django REST API with gunicorn, healthcheck on `/api/health/` |
 | `db`       | `postgres:17-alpine`                   | –         | 5432           | PostgreSQL (internal only, no host port)       |
 
 **Networks**
@@ -56,18 +66,18 @@ Open **http://localhost:4200** and log in with `armin_admin` / `password123` (se
 
 ## Environment variables
 
-All variables are read from `.env`. Every value has a fallback in `compose.yaml`, so the setup also starts without a `.env` – but the fallbacks are **insecure** and only meant for local testing.
+All variables are read from `.env`. `SECRET_KEY` and `DB_PASSWORD` are **required**: without them `docker compose` refuses to start. All other values have safe defaults in `compose.yaml`.
 
 | Variable               | Default                                         | Description                          |
 |------------------------|-------------------------------------------------|--------------------------------------|
-| `SECRET_KEY`           | insecure dev key                                | Django secret key (JWT signing)      |
+| `SECRET_KEY`           | **required**                                    | Django secret key (JWT signing)      |
 | `DEBUG`                | `False`                                         | Django debug mode                    |
 | `ALLOWED_HOSTS`        | `localhost,127.0.0.1`                           | Allowed host names                   |
 | `CORS_ALLOWED_ORIGINS` | `http://localhost:4200,http://127.0.0.1:4200`   | Allowed CORS origins                 |
 | `MAX_IMAGE_SIZE_MB`    | `5`                                             | Max upload size per image            |
 | `DB_NAME`              | `pixora`                                        | PostgreSQL database name             |
 | `DB_USER`              | `pixora`                                        | PostgreSQL user                      |
-| `DB_PASSWORD`          | insecure default                                | PostgreSQL password                  |
+| `DB_PASSWORD`          | **required**                                    | PostgreSQL password                  |
 | `PIX_FRONTEND_PORT`    | `4200`                                          | Host port for the frontend           |
 | `PIX_BACKEND_PORT`     | `8000`                                          | Host port for the backend            |
 
@@ -122,7 +132,7 @@ docker compose ps
 - **Frontend:** open http://localhost:4200
 - **Backend via frontend:** log in – this calls `/api/auth/login/` through nginx
 - **Django admin:** http://localhost:4200/admin
-- **Backend directly:** http://localhost:8000/api/posts/ (returns `401` without a token – that means the API is up)
+- **Backend directly:** `curl http://localhost:8000/api/health/` → `{"status":"ok"}` (port 8000 is bound to localhost only)
 
 Check that all migrations ran against PostgreSQL:
 
@@ -138,6 +148,7 @@ Show the logs of a service:
 docker compose logs -f backend
 ```
 
+- **`required variable ... is missing a value`:** you have no `.env` yet – run `cp example.env .env` and set `SECRET_KEY` and `DB_PASSWORD`.
 - **Backend not starting:** check `DB_PASSWORD` in `.env`. If you changed it after the first start, the old password is still stored in the `pgdata` volume – run `docker compose down -v` (deletes all data) and start again.
 - **Port already in use:** change `PIX_FRONTEND_PORT` or `PIX_BACKEND_PORT` in `.env`.
 - **Images not loading:** check the frontend logs with `docker compose logs frontend`.
