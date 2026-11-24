@@ -1,0 +1,16 @@
+# Dependencies & build artifacts
+node_modules/
+dist/
+.angular/
+coverage/
+*.log
+
+# Secrets
+.env
+*.env
+
+# Git & Docker files
+.git
+.gitignore
+Dockerfile
+.dockerignore

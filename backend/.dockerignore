@@ -1,0 +1,26 @@
+# Secrets / environment files
+.env
+*.env
+
+# Virtual environments & caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Local database & generated files
+db.sqlite3
+staticfiles/
+*.log
+
+# Uploaded media – only seed images go into the image
+media/*
+!media/posts/
+media/posts/*
+!media/posts/seed/
+
+# Git & Docker files
+.git
+.gitignore
+Dockerfile
+.dockerignore
