@@ -1,7 +1,11 @@
 name: Testing
 
 on:
-  push:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   test-backend:
@@ -28,6 +32,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Lint backend (ruff)
+        run: |
+          pip install ruff==0.17.6
+          ruff check .
 
       - name: Run tests
         run: python manage.py test --verbosity=2
@@ -61,3 +70,6 @@ jobs:
 
       - name: Lint
         run: pnpm run lint
+
+      - name: Build (smoke test, no unit tests in template)
+        run: pnpm run build
