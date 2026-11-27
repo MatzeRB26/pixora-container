@@ -1,0 +1,72 @@
+name: Build and Publish
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    tags: ["v*", "test-*"]
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Tests
+    uses: ./.github/workflows/testing.yaml
+
+  build:
+    name: Build ${{ matrix.service }}
+    if: github.ref_type != 'tag'
+    needs: tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [backend, frontend]
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Build image (no push)
+        env:
+          SERVICE: ${{ matrix.service }}
+        run: docker build --tag "pixora-${SERVICE}:ci" "./${SERVICE}"
+
+  publish:
+    name: Publish ${{ matrix.service }}
+    if: github.ref_type == 'tag'
+    needs: tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        service: [backend, frontend]
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Validate tag and set image name
+        env:
+          TAG: ${{ github.ref_name }}
+          OWNER: ${{ github.repository_owner }}
+          SERVICE: ${{ matrix.service }}
+        run: |
+          if [[ ! "$TAG" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]]; then
+            echo "::error::Git tag '$TAG' is not a valid Docker image tag"
+            exit 1
+          fi
+          echo "IMAGE=ghcr.io/${OWNER,,}/pixora-${SERVICE}:${TAG}" >> "$GITHUB_ENV"
+
+      - name: Log in to GHCR
+        env:
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "$GHCR_TOKEN" | docker login ghcr.io --username "$GHCR_USER" --password-stdin
+
+      - name: Build image
+        env:
+          SERVICE: ${{ matrix.service }}
+        run: docker build --tag "$IMAGE" "./${SERVICE}"
+
+      - name: Push image
+        run: docker push "$IMAGE"
