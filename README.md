@@ -10,6 +10,7 @@ A full-stack Instagram-like app (Angular 21 + Django 6 + PostgreSQL), fully cont
 - [Usage](#usage)
 - [Verify](#verify)
 - [Troubleshooting](#troubleshooting)
+- [CI/CD and Deployment](#cicd-and-deployment)
 - [API Overview](#api-overview)
 
 ## Quickstart
@@ -152,6 +153,31 @@ docker compose logs -f backend
 - **Backend not starting:** check `DB_PASSWORD` in `.env`. If you changed it after the first start, the old password is still stored in the `pgdata` volume – run `docker compose down -v` (deletes all data) and start again.
 - **Port already in use:** change `PIX_FRONTEND_PORT` or `PIX_BACKEND_PORT` in `.env`.
 - **Images not loading:** check the frontend logs with `docker compose logs frontend`.
+
+## CI/CD and Deployment
+
+### Workflows
+
+| Workflow | File | Trigger | What it does |
+|---|---|---|---|
+| Testing | `.github/workflows/testing.yaml` | Pull request to `main`, new commits on the PR, called by the build workflow | Backend: ruff lint + Django tests. Frontend: lint, type check (`tsc --noEmit`), production build |
+| Build and Publish | `.github/workflows/build.yaml` | Pull request to `main`, push/merge to `main`, push of a Git tag `v*` or `test-*` | Always runs the tests first. On PRs and `main`: builds both images (no push). On tags: builds and pushes both images to GHCR |
+| Deploy | `.github/workflows/deploy.yaml` | Manual only (`workflow_dispatch`), Git tags only | Copies `compose.yaml` and `deploy/deploy.sh` to the VM over SSH, pulls the images for the selected tag, starts the stack and runs health checks |
+
+If the tests fail, no image is built or published (`needs: tests`).
+
+### Image name and tag format
+
+```text
+ghcr.io/matzerb26/pixora-backend:<git-tag>
+ghcr.io/matzerb26/pixora-frontend:<git-tag>
+```
+
+- The image tag is always **exactly the Git tag** (e.g. `v1.0.0-rc`, `test-3`). The Git tag is the release identity.
+- The tag is validated in the workflow before it is used (allowed: letters, digits, `.`, `_`, `-`).
+- **No `latest` tag** is ever created or published.
+- The packages are **private**. Pulling requires a token with `read:packages`.
+- Note: The "Latest" badge on the GitHub package page only marks the newest upload. It is **not** a Docker tag.
 
 ## API Overview
 
