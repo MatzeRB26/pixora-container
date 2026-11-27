@@ -179,6 +179,13 @@ ghcr.io/matzerb26/pixora-frontend:<git-tag>
 - The packages are **private**. Pulling requires a token with `read:packages`.
 - Note: The "Latest" badge on the GitHub package page only marks the newest upload. It is **not** a Docker tag.
 
+### Evidence
+
+| What | Link |
+|---|---|
+| Manual deployment of `v1.0.0-rc` (with approval) | [Deploy run](https://github.com/MatzeRB26/pixora-container/actions/runs/46000731955) |
+| Rollback to `test-3` | [Deploy run](https://github.com/MatzeRB26/pixora-container/actions/runs/46016751719) |
+
 ## API Overview
 
 | Method | Endpoint                          | Description              |
